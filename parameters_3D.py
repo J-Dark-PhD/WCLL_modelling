@@ -1,5 +1,5 @@
 import sympy as sp
-from context import FESTIM as F
+import FESTIM as F
 import properties
 
 # IDs for volumes and surfaces (must be the same as in xdmf files)
@@ -69,7 +69,6 @@ my_model = F.Simulation(log_level=20)
 
 # define mesh
 mesh_folder = "meshes/"
-# mesh_folder = "../data/meshes/3D_test_meshes/"
 my_model.mesh = F.MeshFromXDMF(
     volume_file=mesh_folder + "mesh_domains_3D.xdmf",
     boundary_file=mesh_folder + "mesh_boundaries_3D.xdmf",
@@ -140,13 +139,13 @@ trap_eurofer_1 = F.Trap(
     density=properties.trap_density_eurofer,
     materials=materials_eurofers,
 )
-# my_model.traps = F.Traps(
-#     [
-#         trap_eurofer_1,
-#         trap_W_1,
-#         trap_W_2,
-#     ]
-# )
+my_model.traps = F.Traps(
+    [
+        trap_eurofer_1,
+        trap_W_1,
+        trap_W_2,
+    ]
+)
 
 # define sources
 my_model.T = F.HeatTransferProblem(transient=False, linear_solver="mumps")
@@ -226,9 +225,9 @@ my_model.boundary_conditions = [
     implantation_flux,
 ]
 
-folder = "3D_Results"
+folder = "Results/3D_results/"
 my_derived_quantities = F.DerivedQuantities(
-    filename="{}/derived_quantities.csv".format(folder),
+    filename=folder + "derived_quantities.csv",
     nb_iterations_between_exports=1,
 )
 my_derived_quantities.derived_quantities = [
