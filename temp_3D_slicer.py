@@ -4,10 +4,17 @@ import FESTIM as F
 
 def slicer(filename):
     mesh_folder = "meshes/"
-    mesh_3D = F.MeshFromXDMF(
-        volume_file=mesh_folder + "mesh_domains_3D.xdmf",
-        boundary_file=mesh_folder + "mesh_boundaries_3D.xdmf",
-    )
+
+    if "detailed" in filename:
+        mesh_3D = F.MeshFromXDMF(
+            volume_file=mesh_folder + "mesh_domains_3D_temp.xdmf",
+            boundary_file=mesh_folder + "mesh_boundaries_3D_temp.xdmf",
+        )
+    else:
+        mesh_3D = F.MeshFromXDMF(
+            volume_file=mesh_folder + "mesh_domains_3D.xdmf",
+            boundary_file=mesh_folder + "mesh_boundaries_3D.xdmf",
+        )
 
     V_CG1 = FunctionSpace(mesh_3D.mesh, "CG", 1)
     temperature_field = filename
@@ -38,7 +45,9 @@ def slicer(filename):
 
 
 if __name__ == "__main__":
-    temperature_field_3D = "Results/3D_results/T.xdmf"
+    temperature_field_3D = "Results/3D_results/T_3D.xdmf"
+    temperature_field_3D_detailed = "Results/3D_results/T_3D_detailed.xdmf"
+
     T_sl = slicer(temperature_field_3D)
 
     results_folder = "Results/3D_results/"
