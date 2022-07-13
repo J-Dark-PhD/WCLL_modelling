@@ -1,23 +1,24 @@
 import matplotlib.pyplot as plt
 from matplotlib import cm, colors
 import matplotlib.pyplot as plt
-from scipy.interpolate import interp2d
-from matplotx import line_labels
 import numpy as np
 import sys
+from scipy.interpolate import RectBivariateSpline
+from shaded_area import shaded_area
 
 sys.path.append("../../../")
 from parametric_study_varying_mass_flow import (
-    mass_flow_range_bz,
     mass_flow_range_fw,
     temp_range,
-    no_values,
-    lower_bound,
-    upper_bound,
+)
+from h_evaluator import (
+    para_h_fw,
+    para_flow_velocity_fw,
 )
 
 bz_ids = range(28, 39)
 fw_ids = range(24, 28)
+results_folder = "../../parametric_studies/varying_h_coeff/results/"
 
 
 def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1, name="shiftedcmap"):
@@ -79,7 +80,6 @@ def shifted_cmap(data):
 
 
 def filename_from_T_flowrate(T, bz_flowrate, fw_flowrate):
-    results_folder = "../../../../data/parametric_studies/varying_h_coeff/results/"
     filename = (
         results_folder
         + "bz_mass_flow={:.3e}_fw_mass_flow={:.3e}_T={:.1f}K/derived_quantities.csv".format(
@@ -128,7 +128,7 @@ def get_max_T_bz_pipes(filename):
     return max_T
 
 
-def get_data(T_range, bz_flow_range, fw_flow_range):
+def get_data(T_range, fw_flow_range):
     bz_pipes_total_fluxes, fw_channels_total_fluxes = [], []
     bz_surf_temperature, fw_surf_temperature = [], []
     structure_max_temperature, bz_pipes_max_temperature = [], []
@@ -139,8 +139,8 @@ def get_data(T_range, bz_flow_range, fw_flow_range):
         fw_avg_surface_temperature_at_given_temperature = []
         structure_max_temperature_at_given_temperature = []
         bz_pipes_max_temperature_at_given_temperature = []
-        for mass_flow_bz, mass_flow_fw in zip(bz_flow_range, fw_flow_range):
-
+        for mass_flow_fw in fw_flow_range:
+            mass_flow_bz = 0.85491
             filename = filename_from_T_flowrate(T, mass_flow_bz, mass_flow_fw)
             bz_flux_at_given_temperature.append(get_bz_flux(filename))
             fw_flux_at_given_temperature.append(get_fw_flux(filename))
@@ -180,37 +180,16 @@ def get_data(T_range, bz_flow_range, fw_flow_range):
     )
 
 
-def shaded_area(X, Y, Z, sampling_size=200):
-    interpolated_z = interp2d(X, Y, Z)
-
-    smooth_x = np.linspace(X.min(), X.max(), num=sampling_size)
-    smooth_y = np.linspace(Y.min(), Y.max(), num=sampling_size)
-
-    smooth_z = interpolated_z(smooth_x, smooth_y)
-
-    smooth_xx, smooth_yy = np.meshgrid(smooth_x, smooth_y)
-
-    indexes = np.where(smooth_z <= 823)  # criteria
-
-    shaded_XX, shaded_YY, shaded_ZZ = (
-        np.copy(smooth_xx),
-        np.copy(smooth_yy),
-        np.copy(smooth_z),
-    )
-    # remove values where criteria is not fulfilled
-    shaded_XX[indexes] = np.nan
-    shaded_YY[indexes] = np.nan
-    shaded_ZZ[indexes] = np.nan
-
-    return shaded_XX, shaded_YY, shaded_ZZ
+def h_coeff_fw(mass_flow_rate):
+    T_standard = 585
+    vel = para_flow_velocity_fw(mass_flow_rate)
+    h = para_h_fw(T=T_standard, u=vel)
+    return h
 
 
 # ##### PROCESS DATA ##### #
 # compute for standard case
-standard_results_file = (
-    "../../../../data/parametric_studies/varying_h_coeff/results/"
-    + "standard_case/derived_quantities.csv"
-)
+standard_results_file = results_folder + "standard_case/derived_quantities.csv"
 
 standard_bz_pipes_flux = get_bz_flux(standard_results_file)
 standard_fw_channels_flux = get_fw_flux(standard_results_file)
@@ -226,7 +205,7 @@ standard_bz_pipes_max_temperature = get_max_T_bz_pipes(standard_results_file)
     fw_surf_temperature,
     structure_max_temperature,
     bz_pipes_max_temperature,
-) = get_data(temp_range, mass_flow_range_bz, mass_flow_range_fw)
+) = get_data(temp_range, mass_flow_range_fw)
 Z_bz_normalised = bz_pipes_total_fluxes / standard_bz_pipes_flux - 1
 Z_fw_normalised = fw_channels_total_fluxes / standard_fw_channels_flux - 1
 Z_bz_surf_temp_normalised = bz_surf_temperature / standard_bz_surf_temperature - 1
@@ -251,17 +230,19 @@ Z_bz_surf_temp_normalised *= 100
 plt.rc("text", usetex=True)
 plt.rc("font", family="serif", size=12)
 
-mass_flow_modification_range = np.linspace(lower_bound, upper_bound, num=no_values)
-
 shifted_cmap_bz_flux = shifted_cmap(Z_bz_normalised)
 shifted_cmap_fw_flux = shifted_cmap(Z_fw_normalised)
 shifted_cmap_bz_temperature = shifted_cmap(Z_bz_surf_temp_normalised)
 shifted_cmap_fw_temperature = shifted_cmap(Z_fw_surf_temp_normalised)
 
-X, Y = np.meshgrid(mass_flow_modification_range, temp_range)
-shaded_X, shaded_Y, shaded_Z = shaded_area(
-    X, Y, structure_max_temperature, sampling_size=1000
-)
+X, Y = np.meshgrid(mass_flow_range_fw, temp_range)
+# method for plotting contour of interpolated results
+# interpolated_z = RectBivariateSpline(
+#     mass_flow_range_fw, temp_range, structure_max_temperature
+# )
+# smooth_x = np.linspace(mass_flow_range_fw.min(), mass_flow_range_fw.max(), num=1000)
+# smooth_y = np.linspace(temp_range.min(), temp_range.max(), num=1000)
+# structure_max_temperature_smooth = interpolated_z(smooth_x, smooth_y)
 
 # ##### MAX TEMPERATURE PLOTS ##### #
 
@@ -276,27 +257,40 @@ CS = ax.contourf(
 for c in CS.collections:
     c.set_edgecolor("face")
 CS2 = ax.contour(X, Y, structure_max_temperature, levels=[823], colors="white")
-CS3 = ax.contour(X, Y, structure_max_temperature, levels=8, colors="white", alpha=0.5)
-ax.clabel(CS2, inline=True, fontsize=10, fmt="%.0f")
-ax.clabel(CS3, inline=True, fontsize=10, fmt="%.0f")
+CS3 = ax.contour(
+    X,
+    Y,
+    structure_max_temperature,
+    levels=8,
+    colors="white",
+    alpha=0.5,
+)
 
 # contour shaded area
-# CS4 = plt.contourf(
-#     shaded_X,
-#     shaded_Y,
-#     shaded_Z,
-#     levels=0,
-#     colors="white",
+# shaded_area(
+#     mass_flow_range_fw,
+#     temp_range,
+#     structure_max_temperature,
+#     min_value=823,
 #     alpha=0.6,
+#     color="white",
+#     sampling_size=1000,
 # )
-# for c in CS4.collections:
-#     c.set_edgecolor("face")
 
-plt.scatter(1, 585, color="white", marker="*", s=10)
+ax.clabel(CS2, inline=True, fontsize=10, fmt="%.0f")
+ax.clabel(CS3, inline=True, fontsize=10, fmt="%.0f")
+plt.scatter(0.63189, 585, color="white", marker="*", s=10)
 plt.colorbar(CS, label=r"Maximum temperature (K)", format="%.0f")
-plt.xlabel(r"Mass flow rate modifcation factor")
-plt.ylabel(r"Coolant bulk temperature (K)")
-plt.title("Maximum temperature in structure")
+ax.set_xlabel(r"FW mass flow rate (kg s$^{-1}$)")
+ax.set_ylabel(r"Coolant bulk temperature (K)")
+ax_1_ticks = ax.get_xticks()[:-1]
+ax2 = ax.twiny()
+h_min, h_max = (
+    h_coeff_fw(ax.get_xlim()[0]),
+    h_coeff_fw(ax.get_xlim()[1]),
+)
+ax2.set_xlim(h_min, h_max)
+ax2.set_xlabel("Heat transfer coefficient at 585K (W m$^{-2}$ K$^{-1}$)")
 plt.tight_layout()
 
 
@@ -310,28 +304,33 @@ CS = ax.contourf(
 )
 for c in CS.collections:
     c.set_edgecolor("face")
-CS2 = ax.contour(X, Y, bz_pipes_max_temperature, levels=[823], colors="white")
 CS3 = ax.contour(X, Y, bz_pipes_max_temperature, levels=8, colors="white", alpha=0.5)
-ax.clabel(CS2, inline=True, fontsize=10, fmt="%.0f")
-ax.clabel(CS3, inline=True, fontsize=10, fmt="%.0f")
 
 # contour shaded area
-# CS4 = plt.contourf(
-#     shaded_X,
-#     shaded_Y,
-#     shaded_Z,
-#     levels=1,
-#     colors="white",
+# shaded_area(
+#     mass_flow_range_fw,
+#     temp_range,
+#     structure_max_temperature,
+#     min_value=823,
 #     alpha=0.6,
+#     color="white",
+#     sampling_size=1000,
 # )
-# for c in CS4.collections:
-#     c.set_edgecolor("face")
 
-plt.scatter(1, 585, color="white", marker="*", s=10)
+ax.clabel(CS2, inline=True, fontsize=10, fmt="%.0f")
+ax.clabel(CS3, inline=True, fontsize=10, fmt="%.0f")
+plt.scatter(0.63189, 585, color="white", marker="*", s=10)
 plt.colorbar(CS, label=r"Average surface temperture (K)", format="%.0f")
-plt.xlabel(r"Mass flow rate modifcation factor")
-plt.ylabel(r"Coolant bulk temperature (K)")
-plt.title("Maximum temperature in breeding zone pipes")
+ax.set_xlabel(r"FW mass flow rate (kg s$^{-1}$)")
+ax.set_ylabel(r"Coolant bulk temperature (K)")
+ax_1_ticks = ax.get_xticks()[:-1]
+ax2 = ax.twiny()
+h_min, h_max = (
+    h_coeff_fw(ax.get_xlim()[0]),
+    h_coeff_fw(ax.get_xlim()[1]),
+)
+ax2.set_xlim(h_min, h_max)
+ax2.set_xlabel("Heat transfer coefficient at 585K (W m$^{-2}$ K$^{-1}$)")
 plt.tight_layout()
 
 # ##### SURFACE FLUX PLOTS ##### #
@@ -349,27 +348,34 @@ for c in CS.collections:
 CS2 = ax.contour(
     X, Y, Z_bz_normalised, levels=10, colors="black", linestyles="solid", alpha=0.5
 )
-plt.clabel(CS2, fmt="%.0f")
 
 # contour shaded area
-# CS4 = plt.contourf(
-#     shaded_X,
-#     shaded_Y,
-#     shaded_Z,
-#     levels=1,
-#     colors="grey",
+# shaded_area(
+#     mass_flow_range_fw,
+#     temp_range,
+#     structure_max_temperature,
+#     min_value=823,
 #     alpha=0.6,
+#     color="grey",
+#     sampling_size=1000,
 # )
-# for c in CS4.collections:
-#     c.set_edgecolor("face")
 
-# plt.scatter(X, Y, color="black", marker="x", s=9)
-plt.scatter(1, 585, color="black", marker="x", s=10)
+plt.clabel(CS2, fmt="%.0f")
+# plt.scatter(X, Y, color="black", marker="*", s=9)
+plt.scatter(0.63189, 585, color="black", marker="*", s=10)
 plt.colorbar(CS, label=r"Surface flux difference (\%)", format="%.1f ")
-plt.xlabel(r"Mass flow rate modifcation factor")
-plt.ylabel(r"Coolant bulk temperature (K)")
-ax.set_title("Breeding Zone Pipes")
+ax.set_xlabel(r"FW mass flow rate (kg s$^{-1}$)")
+ax.set_ylabel(r"Coolant bulk temperature (K)")
+ax_1_ticks = ax.get_xticks()[:-1]
+ax2 = ax.twiny()
+h_min, h_max = (
+    h_coeff_fw(ax.get_xlim()[0]),
+    h_coeff_fw(ax.get_xlim()[1]),
+)
+ax2.set_xlim(h_min, h_max)
+ax2.set_xlabel("Heat transfer coefficient at 585K (W m$^{-2}$ K$^{-1}$)")
 plt.tight_layout()
+
 
 fig, ax = plt.subplots(figsize=[6, 4.5])
 CS = ax.contourf(
@@ -384,26 +390,32 @@ for c in CS.collections:
 CS2 = ax.contour(
     X, Y, Z_fw_normalised, levels=10, colors="black", linestyles="solid", alpha=0.5
 )
-plt.clabel(CS2, fmt="%.0f")
 
 # contour shaded area
-# CS4 = plt.contourf(
-#     shaded_X,
-#     shaded_Y,
-#     shaded_Z,
-#     levels=1,
-#     colors="grey",
+# shaded_area(
+#     mass_flow_range_fw,
+#     temp_range,
+#     structure_max_temperature,
+#     min_value=823,
 #     alpha=0.6,
+#     color="grey",
+#     sampling_size=1000,
 # )
-# for c in CS4.collections:
-#     c.set_edgecolor("face")
 
-# plt.scatter(X, Y, color="black", marker="x", s=9)
-plt.scatter(1, 585, color="black", marker="x", s=10)
+plt.clabel(CS2, fmt="%.0f")
+# plt.scatter(X, Y, color="black", marker="*", s=9)
+plt.scatter(0.63189, 585, color="black", marker="*", s=10)
 cb = plt.colorbar(CS, label=r"Surface flux difference (\%)", format="%.1f")
-plt.xlabel(r"Mass flow rate modifcation factor")
-plt.ylabel(r"Coolant bulk temperature (K)")
-ax.set_title("First Wall Channels")
+ax.set_xlabel(r"FW mass flow rate (kg s$^{-1}$)")
+ax.set_ylabel(r"Coolant bulk temperature (K)")
+ax_1_ticks = ax.get_xticks()[:-1]
+ax2 = ax.twiny()
+h_min, h_max = (
+    h_coeff_fw(ax.get_xlim()[0]),
+    h_coeff_fw(ax.get_xlim()[1]),
+)
+ax2.set_xlim(h_min, h_max)
+ax2.set_xlabel("Heat transfer coefficient at 585K (W m$^{-2}$ K$^{-1}$)")
 plt.tight_layout()
 
 # ##### AVERAGE SURFACE TEMPERATURE PLOTS ##### #
@@ -427,26 +439,32 @@ CS2 = ax.contour(
     linestyles="solid",
     alpha=0.5,
 )
-plt.clabel(CS2, fmt="%.0f")
 
 # contour shaded area
-# CS4 = plt.contourf(
-#     shaded_X,
-#     shaded_Y,
-#     shaded_Z,
-#     levels=1,
-#     colors="grey",
+# shaded_area(
+#     mass_flow_range_fw,
+#     temp_range,
+#     structure_max_temperature,
+#     min_value=823,
 #     alpha=0.6,
+#     color="grey",
+#     sampling_size=1000,
 # )
-# for c in CS4.collections:
-#     c.set_edgecolor("face")
 
-plt.scatter(1, 585, color="black", marker="x", s=10)
-# plt.scatter(X, Y, color="black", marker="x", s=9)
+plt.clabel(CS2, fmt="%.1f")
+plt.scatter(0.63189, 585, color="black", marker="*", s=10)
+# plt.scatter(X, Y, color="black", marker="*", s=9)
 plt.colorbar(CS, label=r"Average surface temperture difference (\%)", format="%.1f")
-plt.xlabel(r"Mass flow rate modifcation factor")
-plt.ylabel(r"Coolant bulk temperature (K)")
-ax.set_title("Breeding Zone Pipes")
+ax.set_xlabel(r"FW mass flow rate (kg s$^{-1}$)")
+ax.set_ylabel(r"Coolant bulk temperature (K)")
+ax_1_ticks = ax.get_xticks()[:-1]
+ax2 = ax.twiny()
+h_min, h_max = (
+    h_coeff_fw(ax.get_xlim()[0]),
+    h_coeff_fw(ax.get_xlim()[1]),
+)
+ax2.set_xlim(h_min, h_max)
+ax2.set_xlabel("Heat transfer coefficient at 585K (W m$^{-2}$ K$^{-1}$)")
 plt.tight_layout()
 
 fig, ax = plt.subplots(figsize=[6, 4.5])
@@ -468,28 +486,32 @@ CS2 = ax.contour(
     linestyles="solid",
     alpha=0.5,
 )
-plt.clabel(CS2, fmt="%.0f")
 
 # contour shaded area
-# CS4 = plt.contourf(
-#     shaded_X,
-#     shaded_Y,
-#     shaded_Z,
-#     levels=1,
-#     colors="grey",
+# shaded_area(
+#     mass_flow_range_fw,
+#     temp_range,
+#     structure_max_temperature,
+#     min_value=823,
 #     alpha=0.6,
+#     color="grey",
+#     sampling_size=1000,
 # )
-# for c in CS4.collections:
-#     c.set_edgecolor("face")
 
-plt.scatter(1, 585, color="black", marker="x", s=10)
-# plt.scatter(X, Y, color="black", marker="x", s=9)
+plt.clabel(CS2, fmt="%.0f")
+plt.scatter(0.63189, 585, color="black", marker="*", s=10)
+# plt.scatter(X, Y, color="black", marker="*", s=9)
 plt.colorbar(CS, label=r"Average surface temperture difference (\%)", format="%.1f")
-plt.xlabel(r"Mass flow rate modifcation factor")
-plt.ylabel(r"Coolant bulk temperature (K)")
-ax.set_title("First Wall Channels")
+ax.set_xlabel(r"FW mass flow rate (kg s$^{-1}$)")
+ax.set_ylabel(r"Coolant bulk temperature (K)")
+ax_1_ticks = ax.get_xticks()[:-1]
+ax2 = ax.twiny()
+h_min, h_max = (
+    h_coeff_fw(ax.get_xlim()[0]),
+    h_coeff_fw(ax.get_xlim()[1]),
+)
+ax2.set_xlim(h_min, h_max)
+ax2.set_xlabel("Heat transfer coefficient at 585K (W m$^{-2}$ K$^{-1}$)")
 plt.tight_layout()
-
-# ##### SHOW PLOTS ##### #
 
 plt.show()

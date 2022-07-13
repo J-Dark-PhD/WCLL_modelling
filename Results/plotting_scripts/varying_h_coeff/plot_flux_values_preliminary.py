@@ -6,10 +6,8 @@ plt.rc("font", family="serif", size=12)
 
 temp_range = np.linspace(569, 601, num=15)
 
-# temp_range = [569.0, 572.2, 575.4, 578.6, 581.8, 585.0, 588.2, 591.4, 594.6, 597.8, 601.0]
-
 bz_pipes, fw_channels = [], []
-folder = "../../../../../data/parametric_studies/varying_h_coeff/results/"
+folder = "../../parametric_studies/varying_h_coeff/preliminary_study/results/"
 for temp in temp_range:
     filename = folder + "run_{:.1f}K/derived_quantities.csv".format(temp)
     data = np.genfromtxt(filename, delimiter=",", names=True)
