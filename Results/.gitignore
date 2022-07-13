@@ -5,3 +5,15 @@ retention.h5
 retention.xdmf
 temperature.h5
 temperature.xdmf
+trap_eurofer_1.h5
+trap_eurofer_1.xdmf
+trap_W_1.h5
+trap_W_1.xdmf
+trap_W_2.h5
+trap_W_2.xdmf
+
+# results in folders
+velocity_fields/u_sub.h5
+velocity_fields/u_sub.xdmf
+3D_results/T_3D_detailed.h5
+3D_results/T_3D_detailed.xdmf
