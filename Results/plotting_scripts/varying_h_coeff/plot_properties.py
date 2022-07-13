@@ -90,120 +90,132 @@ print(
 )
 
 
+def plot_all_separate():
+    # density plot
+    plt.figure()
+    plt.plot(T, rho_func(T), color="black")
+    plt.xlabel(r"Temperature (K)")
+    plt.ylabel(r"Density, $\rho$ (Kg m$^{-3}$)")
+    plt.ylim(0, 800)
+    ax = plt.gca()
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    plt.tight_layout()
+
+    # specific heat capacity plot
+    plt.figure()
+    plt.plot(T, cp_func(T), color="black")
+    plt.xlabel(r"Temperature (K)")
+    plt.ylabel(r"Specific heat capacity, c$_p$ (J kg$^{-3}$ K$^{-1}$)")
+    plt.ylim(0, 7000)
+    ax = plt.gca()
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    plt.tight_layout()
+
+    # Thermal conductivity plot
+    plt.figure()
+    plt.plot(T, thermal_cond_func(T), color="black")
+    plt.xlabel(r"Temperature (K)")
+    plt.ylabel(r"Thermal conductivity, k (W m$^{-1}$ K$^{-1}$)")
+    plt.ylim(0, 0.6)
+    ax = plt.gca()
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    plt.tight_layout()
+
+    # Viscosity plot
+    plt.figure()
+    plt.plot(T, mu_func(T), color="black")
+    plt.xlabel(r"Temperature (K)")
+    plt.ylabel(r"Viscosity, $\mu$ (Pa s)")
+    plt.ylim(0, 1e-04)
+    plt.ticklabel_format(axis="y", scilimits=(0, 0))
+    ax = plt.gca()
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    plt.tight_layout()
+
+    # Heat transfer coefficient in BZ system
+    plt.figure()
+    plt.plot(T, h_bz, color="black")
+    plt.xlabel(r"Temperature (K)")
+    plt.ylabel(r"Heat transfer coefficient in BZ system (W m$^{-2}$ K$^{-1}$)")
+    plt.ylim(0, 6000)
+    ax = plt.gca()
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    plt.tight_layout()
+
+    # Heat transfer coefficient in FW system
+    plt.figure()
+    plt.plot(T, h_fw, color="black")
+    plt.xlabel(r"Temperature (K)")
+    plt.ylabel(r"Heat transfer coefficient in FW system (W m$^{-2}$ K$^{-1}$)")
+    plt.ylim(0, 10000)
+    # plt.ticklabel_format(axis="y", scilimits=(0, 0))
+    ax = plt.gca()
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    plt.tight_layout()
+
+    plt.show()
+
+
+def plot_all_in_one():
+    # Properties plot
+    fig, axs = plt.subplots(2, 2, sharex=True, figsize=[8, 6])
+    axs[0, 0].plot(T, rho_func(T), color="black")
+    axs[0, 0].set_ylabel("Density \n" + r"(Kg m$^{-3}$)")
+    axs[0, 0].set_ylim(0, 800)
+    axs[0, 0].spines["top"].set_visible(False)
+    axs[0, 0].spines["right"].set_visible(False)
+
+    axs[0, 1].plot(T, mu_func(T), color="black")
+    axs[0, 1].set_ylabel("Viscosity \n" + r"(Pa s)")
+    axs[0, 1].set_ylim(0, 1e-04)
+    axs[0, 1].ticklabel_format(axis="y", scilimits=(0, 0))
+    axs[0, 1].spines["top"].set_visible(False)
+    axs[0, 1].spines["right"].set_visible(False)
+
+    axs[1, 0].plot(T, cp_func(T), color="black")
+    axs[1, 0].set_xlabel(r"Temperature (K)")
+    axs[1, 0].set_ylabel("Specific heat capacity \n" + r"(J kg$^{-3}$ K$^{-1}$)")
+    axs[1, 0].set_ylim(0, 7000)
+    axs[1, 0].spines["top"].set_visible(False)
+    axs[1, 0].spines["right"].set_visible(False)
+
+    axs[1, 1].plot(T, thermal_cond_func(T), color="black")
+    axs[1, 1].set_xlabel(r"Temperature (K)")
+    axs[1, 1].set_ylabel("Thermal conductivity \n" + r"(W m$^{-1}$ K$^{-1}$)")
+    axs[1, 1].set_ylim(0, 0.6)
+    axs[1, 1].spines["top"].set_visible(False)
+    axs[1, 1].spines["right"].set_visible(False)
+    plt.tight_layout()
+
+    # Heat transfer coefficients plot
+    fig, axs = plt.subplots(2, 1, sharex=True, figsize=[4, 6])
+    axs[0].plot(T, h_bz, color="black")
+    axs[0].set_ylabel("Heat transfer coefficient BZ \n" + r"(W m$^{-2}$ K$^{-1}$)")
+    axs[0].set_ylim(0, 6000)
+    axs[0].spines["top"].set_visible(False)
+    axs[0].spines["right"].set_visible(False)
+
+    axs[1].plot(T, h_fw, color="black")
+    axs[1].set_xlabel(r"Temperature (K)")
+    axs[1].set_ylabel("Heat transfer coefficient FW \n" + r"(W m$^{-2}$ K$^{-1}$)")
+    axs[1].set_ylim(0, 10000)
+    axs[1].spines["top"].set_visible(False)
+    axs[1].spines["right"].set_visible(False)
+    plt.tight_layout()
+
+    plt.show()
+
+
 # ##### PLOTTING ##### #
 
 plt.rc("text", usetex=True)
 plt.rc("font", family="serif", size=12)
 
-# plt.figure()
-# plt.plot(T, rho_func(T), color="black")
-# plt.xlabel(r"Temperature (K)")
-# plt.ylabel(r"Density, $\rho$ (Kg m$^{-3}$)")
-# plt.ylim(0, 800)
-# ax = plt.gca()
-# ax.spines["top"].set_visible(False)
-# ax.spines["right"].set_visible(False)
-# plt.tight_layout()
-
-
-# plt.figure()
-# plt.plot(T, cp_func(T), color="black")
-# plt.xlabel(r"Temperature (K)")
-# plt.ylabel(r"Specific heat capacity, c$_p$ (J kg$^{-3}$ K$^{-1}$)")
-# plt.ylim(0, 7000)
-# ax = plt.gca()
-# ax.spines["top"].set_visible(False)
-# ax.spines["right"].set_visible(False)
-# plt.tight_layout()
-
-
-# plt.figure()
-# plt.plot(T, thermal_cond_func(T), color="black")
-# plt.xlabel(r"Temperature (K)")
-# plt.ylabel(r"Thermal conductivity, k (W m$^{-1}$ K$^{-1}$)")
-# plt.ylim(0, 0.6)
-# ax = plt.gca()
-# ax.spines["top"].set_visible(False)
-# ax.spines["right"].set_visible(False)
-# plt.tight_layout()
-
-
-# plt.figure()
-# plt.plot(T, mu_func(T), color="black")
-# plt.xlabel(r"Temperature (K)")
-# plt.ylabel(r"Viscosity, $\mu$ (Pa s)")
-# plt.ylim(0, 1e-04)
-# plt.ticklabel_format(axis="y", scilimits=(0, 0))
-# ax = plt.gca()
-# ax.spines["top"].set_visible(False)
-# ax.spines["right"].set_visible(False)
-# plt.tight_layout()
-
-# plt.figure()
-# plt.plot(T, h_bz, color="black")
-# plt.xlabel(r"Temperature (K)")
-# plt.ylabel(r"Heat transfer coefficient in BZ system (W m$^{-2}$ K$^{-1}$)")
-# plt.ylim(0, 6000)
-# ax = plt.gca()
-# ax.spines["top"].set_visible(False)
-# ax.spines["right"].set_visible(False)
-# plt.tight_layout()
-
-# plt.figure()
-# plt.plot(T, h_fw, color="black")
-# plt.xlabel(r"Temperature (K)")
-# plt.ylabel(r"Heat transfer coefficient in FW system (W m$^{-2}$ K$^{-1}$)")
-# plt.ylim(0, 10000)
-# # plt.ticklabel_format(axis="y", scilimits=(0, 0))
-# ax = plt.gca()
-# ax.spines["top"].set_visible(False)
-# ax.spines["right"].set_visible(False)
-# plt.tight_layout()
-
-# ##### ALL IN ONE PLOTS ##### #
-
-# fig, axs = plt.subplots(2, 2, sharex=True, figsize=[8, 6])
-# axs[0, 0].plot(T, rho_func(T), color="black")
-# axs[0, 0].set_ylabel("Density \n" + r"(Kg m$^{-3}$)")
-# axs[0, 0].set_ylim(0, 800)
-# axs[0, 0].spines["top"].set_visible(False)
-# axs[0, 0].spines["right"].set_visible(False)
-
-# axs[0, 1].plot(T, mu_func(T), color="black")
-# axs[0, 1].set_ylabel("Viscosity \n" + r"(Pa s)")
-# axs[0, 1].set_ylim(0, 1e-04)
-# axs[0, 1].ticklabel_format(axis="y", scilimits=(0, 0))
-# axs[0, 1].spines["top"].set_visible(False)
-# axs[0, 1].spines["right"].set_visible(False)
-
-# axs[1, 0].plot(T, cp_func(T), color="black")
-# axs[1, 0].set_xlabel(r"Temperature (K)")
-# axs[1, 0].set_ylabel("Specific heat capacity \n" + r"(J kg$^{-3}$ K$^{-1}$)")
-# axs[1, 0].set_ylim(0, 7000)
-# axs[1, 0].spines["top"].set_visible(False)
-# axs[1, 0].spines["right"].set_visible(False)
-
-# axs[1, 1].plot(T, thermal_cond_func(T), color="black")
-# axs[1, 1].set_xlabel(r"Temperature (K)")
-# axs[1, 1].set_ylabel("Thermal conductivity \n" + r"(W m$^{-1}$ K$^{-1}$)")
-# axs[1, 1].set_ylim(0, 0.6)
-# axs[1, 1].spines["top"].set_visible(False)
-# axs[1, 1].spines["right"].set_visible(False)
-# plt.tight_layout()
-
-
-fig, axs = plt.subplots(2, 1, sharex=True, figsize=[4, 6])
-axs[0].plot(T, h_bz, color="black")
-axs[0].set_ylabel("Heat transfer coefficient BZ \n" + r"(W m$^{-2}$ K$^{-1}$)")
-axs[0].set_ylim(0, 6000)
-axs[0].spines["top"].set_visible(False)
-axs[0].spines["right"].set_visible(False)
-
-axs[1].plot(T, h_fw, color="black")
-axs[1].set_xlabel(r"Temperature (K)")
-axs[1].set_ylabel("Heat transfer coefficient FW \n" + r"(W m$^{-2}$ K$^{-1}$)")
-axs[1].set_ylim(0, 10000)
-axs[1].spines["top"].set_visible(False)
-axs[1].spines["right"].set_visible(False)
-plt.tight_layout()
-plt.show()
+# plot_all_separate()
+plot_all_in_one()
