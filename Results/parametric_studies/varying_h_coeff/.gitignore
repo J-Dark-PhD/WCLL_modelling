@@ -1,0 +1,12 @@
+2D_slices/*.h5
+2D_slices/*.xdmf
+3D_temp_fields/*.h5
+3D_temp_fields/*.xdmf
+results/*.h5
+results/*.xdmf
+preliminary_study/2D_slices/*.h5
+preliminary_study/2D_slices/*.xdmf
+preliminary_study/3D_temp_fields/*.h5
+preliminary_study/3D_temp_fields/*.xdmf
+preliminary_study/results/*.h5
+preliminary_study/results/*.xdmf
