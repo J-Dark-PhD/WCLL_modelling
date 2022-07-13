@@ -1,5 +1,5 @@
 from fenics import *
-from context import FESTIM as F
+import FESTIM as F
 
 
 def slicer(filename):
@@ -10,9 +10,9 @@ def slicer(filename):
     )
 
     V_CG1 = FunctionSpace(mesh_3D.mesh, "CG", 1)
-    mesh_temp = filename
+    temperature_field = filename
     T = Function(V_CG1)
-    XDMFFile(mesh_temp).read_checkpoint(T, "T", -1)
+    XDMFFile(temperature_field).read_checkpoint(T, "T", -1)
 
     class u_slice(UserExpression):
         def eval(self, value, x):
@@ -35,3 +35,7 @@ def slicer(filename):
     T_sl = interpolate(u_slice(), V_2D)
 
     return T_sl
+
+
+if __name__ == "__main__":
+    T_sl = slicer()
