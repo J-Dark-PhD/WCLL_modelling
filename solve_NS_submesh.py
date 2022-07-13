@@ -4,22 +4,18 @@ Needs to be run in serial
 from fenics import *
 import FESTIM as F
 import properties
-import solve_heat_transfer
 
 # IDs for volumes and surfaces (must be the same as in xdmf files)
-
-id_W = 7
-id_eurofer = 8
 id_lipb = 6
-id_inlet = 9
-id_outlet = 10
+id_inlet = 21
+id_outlet = 22
 
-mesh_folder = "meshes/2D/mesh_fine/"
+mesh_folder = "meshes/"
 
 # ##### Create SubMesh ##### #
 mesh_full = F.MeshFromXDMF(
-    volume_file=mesh_folder + "mesh_domains_fine.xdmf",
-    boundary_file=mesh_folder + "mesh_boundaries_fine.xdmf",
+    volume_file=mesh_folder + "mesh_domains_2D.xdmf",
+    boundary_file=mesh_folder + "mesh_boundaries_2D.xdmf",
 )
 
 mesh_sub = SubMesh(
@@ -62,10 +58,10 @@ inlet_pressure = 5e05  # units: Pa
 outlet_pressure = 0  # units: Pa
 
 # Simulation boundary conditions
-non_slip = Constant((0.0, 0.0))
+non_slip = Constant((0.0, 0.0, 0.0))
 
 inflow = DirichletBC(
-    W.sub(0), Constant((-inlet_velocity, 0)), surface_markers_sub, id_inlet
+    W.sub(0), Constant((-inlet_velocity, 0.0, 0.0)), surface_markers_sub, id_inlet
 )
 
 walls = DirichletBC(W.sub(0), non_slip, surface_markers_sub, id_walls)
@@ -74,7 +70,7 @@ pressure_outlet = DirichletBC(W.sub(1), Constant(0), surface_markers_sub, id_out
 
 bcu = [inflow, pressure_outlet, walls]
 
-g = Constant((0.0, -9.81))
+g = Constant((0.0, -9.81, 0.0))
 T_0 = inlet_temperature
 
 # ##### CFD --> Define Variational Parameters ##### #
@@ -87,7 +83,15 @@ u, p = split(up)
 V_CG1 = FunctionSpace(mesh_sub, "CG", 1)
 
 print("Projecting temperature field onto mesh")
-T = project(solve_heat_transfer.T, V_CG1, solver_type="mumps")
+temperature_file = "Results/3D_results/T_sl.xdmf"
+mesh_temperature = mesh_full.mesh
+V_CG1 = FunctionSpace(mesh_temperature, "CG", 1)
+V_CG1_sub = FunctionSpace(mesh_sub, "CG", 1)
+temperature_field = Function(V_CG1)
+
+XDMFFile(temperature_file).read_checkpoint(temperature_field, "T", -1)
+T = project(temperature_field, V_CG1_sub, solver_type="mumps")
+
 
 # LiPb
 Cp_lipb = properties.Cp_lipb(T)
@@ -122,7 +126,7 @@ solve(F == 0, up, bcu, solver_parameters={"newton_solver": {"linear_solver": "mu
 u_export = Function(W)
 u_export.assign(up)
 u_out, p_out = u_export.split()
-XDMFFile("Results/velcoity_fields/u_sub_fine.xdmf").write_checkpoint(
+XDMFFile("Results/velocity_fields/u_sub.xdmf").write_checkpoint(
     u_out, "u", 0, XDMFFile.Encoding.HDF5, append=False
 )
 
