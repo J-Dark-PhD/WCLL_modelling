@@ -92,19 +92,10 @@ temperature_field = Function(V_CG1)
 XDMFFile(temperature_file).read_checkpoint(temperature_field, "T", -1)
 T = project(temperature_field, V_CG1_sub, solver_type="mumps")
 
-
-# LiPb
-Cp_lipb = properties.Cp_lipb(T)
-rho_lipb = properties.rho_lipb(T)
-rho_0_lipb = properties.rho_0_lipb
-thermal_cond_lipb = properties.thermal_cond_lipb(T)
-visc_lipb = properties.visc_lipb(T)
-beta_lipb = properties.beta_lipb(T)
-
 # Fluid properties
-rho_0 = rho_0_lipb
-mu = visc_lipb
-beta = beta_lipb
+rho_0 = properties.rho_0_lipb
+mu = properties.visc_lipb(T)
+beta = properties.beta_lipb(T)
 
 # ##### Solver ##### #
 dx = Measure("dx", subdomain_data=volume_markers_sub)
@@ -130,10 +121,9 @@ XDMFFile("Results/velocity_fields/u_sub.xdmf").write_checkpoint(
     u_out, "u", 0, XDMFFile.Encoding.HDF5, append=False
 )
 
-# ### extend from subdomain to full mesh
+# ##### extend from subdomain to full mesh ##### #
 
 print("Extending the function")
-
 
 ele_full = VectorElement("CG", mesh_full.mesh.ufl_cell(), 2)
 V = FunctionSpace(mesh_full.mesh, ele_full)
