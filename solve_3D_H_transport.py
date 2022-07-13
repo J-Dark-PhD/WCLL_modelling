@@ -1,22 +1,20 @@
 from fenics import *
-from context import FESTIM as F
+import FESTIM as F
 from properties import S_0_lipb, E_S_lipb
 from parameters_3D import my_model, id_lipb
 
 
 def run_H_transport(S_0=S_0_lipb, E_S=E_S_lipb):
     # create a simulation with these normal parameters
-
     my_model.initialise()
 
     # read the u_full function written in solve_NS_submesh.py
     mesh = my_model.mesh.mesh
     V_ele = VectorElement("CG", mesh.ufl_cell(), 3)
     V_u = FunctionSpace(mesh, V_ele)
-
-    mesh_cfd = "3D_Results/u_full.xdmf"
+    velocity_field = "Results/3D_results/u_full.xdmf"
     u = Function(V_u)
-    XDMFFile(mesh_cfd).read_checkpoint(u, "u", -1)
+    XDMFFile(velocity_field).read_checkpoint(u, "u", -1)
 
     # modify the form F
     id_flow = id_lipb
