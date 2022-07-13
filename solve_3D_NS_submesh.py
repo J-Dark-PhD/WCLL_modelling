@@ -96,8 +96,6 @@ u, p = split(up)
 
 # ##### CFD --> Fluid Materials properties ##### #
 V_CG1 = FunctionSpace(mesh_sub, "CG", 1)
-# T = 300
-# T.set_allow_extrapolation(True)
 T = project(solve_3D_heat_transfer.T, V_CG1, solver_type="mumps")
 
 # LiPb
@@ -162,6 +160,6 @@ solve(
 )
 
 print("Exporting velocity map")
-XDMFFile("Results/3D_results/u_full.xdmf").write_checkpoint(
+XDMFFile("Results/3D_results/u_full_3D.xdmf").write_checkpoint(
     u_full, "u", 0, XDMFFile.Encoding.HDF5, append=False
 )

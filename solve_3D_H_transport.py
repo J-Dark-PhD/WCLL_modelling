@@ -12,7 +12,7 @@ def run_H_transport(S_0=S_0_lipb, E_S=E_S_lipb):
     mesh = my_model.mesh.mesh
     V_ele = VectorElement("CG", mesh.ufl_cell(), 3)
     V_u = FunctionSpace(mesh, V_ele)
-    velocity_field = "Results/3D_results/u_full.xdmf"
+    velocity_field = "Results/3D_results/u_full_3D.xdmf"
     u = Function(V_u)
     XDMFFile(velocity_field).read_checkpoint(u, "u", -1)
 
