@@ -3,10 +3,8 @@ Needs to be run in serial
 """
 
 from fenics import *
-import sympy as sp
-from context import FESTIM as F
+import FESTIM as F
 import properties
-
 import solve_3D_heat_transfer
 
 # IDs for volumes and surfaces (must be the same as in xdmf files)
@@ -16,7 +14,7 @@ id_lipb = 6
 id_inlet = 34
 id_outlet = 35
 
-mesh_folder = "../data/meshes/3D_test_meshes/"
+mesh_folder = "meshes/"
 
 # ##### Create SubMesh ##### #
 mesh_full = F.MeshFromXDMF(
@@ -136,9 +134,7 @@ u_export = Function(W)
 u_export.assign(up)
 u_out, p_out = u_export.split()
 print("Exporting submesh velocity map")
-XDMFFile("3D_Results/u_sub_3D_sym.xdmf").write(u_out)
-print("Exporting submesh checkpoints")
-XDMFFile("3D_Results/u_sub_3D_sym_cp.xdmf").write_checkpoint(
+XDMFFile("Results/3D_results/u_sub_3D.xdmf").write_checkpoint(
     u_out, "u", 0, XDMFFile.Encoding.HDF5, append=False
 )
 
@@ -166,8 +162,6 @@ solve(
 )
 
 print("Exporting velocity map")
-XDMFFile("3D_Results/u_full_3D_sym.xdmf").write(u_full)
-print("Exporting checkpoints")
-XDMFFile("Results/u_full.xdmf").write_checkpoint(
+XDMFFile("Results/3D_results/u_full.xdmf").write_checkpoint(
     u_full, "u", 0, XDMFFile.Encoding.HDF5, append=False
 )
