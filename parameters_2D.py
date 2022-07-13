@@ -1,4 +1,4 @@
-from context import FESTIM as F
+import FESTIM as F
 import sympy as sp
 import properties
 
