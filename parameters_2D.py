@@ -148,6 +148,7 @@ my_model.traps = F.Traps(
     ]
 )
 
+# define sources
 my_model.sources = [
     F.Source(
         value=6.022e23
@@ -160,6 +161,10 @@ my_model.sources = [
         field="solute",
     ),
 ]
+
+# define temperature
+temperature_field = "Results/3D_results/T_sl.xdmf"
+my_model.T = F.TemperatureFromXDMF(filename=temperature_field, label="T")
 
 # define boundary conditions
 my_model.boundary_conditions = [
