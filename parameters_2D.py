@@ -167,21 +167,25 @@ temperature_field = "Results/3D_results/T_sl.xdmf"
 my_model.T = F.TemperatureFromXDMF(filename=temperature_field, label="T")
 
 # define boundary conditions
+inlet_h_concentration = F.DirichletBC(surfaces=id_inlet, value=0, field=0)
+coolant_boundary_recombination_flux = F.RecombinationFlux(
+    Kr_0=properties.Kr_0_eurofer,
+    E_Kr=properties.E_Kr_eurofer,
+    order=2,
+    surfaces=[*ids_bz_coolant_interfaces, *ids_fw_coolant_interfaces],
+)
+first_wall_implantation_flux = F.ImplantationDirichlet(
+    surfaces=id_plasma_facing_wall,
+    phi=1e20,
+    R_p=3e-09,
+    D_0=properties.D_0_W,
+    E_D=properties.E_D_W,
+)
+
 my_model.boundary_conditions = [
-    F.DirichletBC(surfaces=id_inlet, value=0, field=0),
-    F.RecombinationFlux(
-        Kr_0=properties.Kr_0_eurofer,
-        E_Kr=properties.E_Kr_eurofer,
-        order=2,
-        surfaces=[*ids_bz_coolant_interfaces, *ids_fw_coolant_interfaces],
-    ),
-    F.ImplantationDirichlet(
-        surfaces=id_plasma_facing_wall,
-        phi=1e20,
-        R_p=3e-09,
-        D_0=properties.D_0_W,
-        E_D=properties.E_D_W,
-    ),
+    inlet_h_concentration,
+    coolant_boundary_recombination_flux,
+    first_wall_implantation_flux,
 ]
 
 # define exports
