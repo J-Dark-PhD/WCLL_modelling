@@ -38,4 +38,10 @@ def slicer(filename):
 
 
 if __name__ == "__main__":
-    T_sl = slicer()
+    temperature_field_3D = "Results/3D_results/T.xdmf"
+    T_sl = slicer(temperature_field_3D)
+
+    results_folder = "Results/3D_results/"
+    XDMFFile(results_folder + "T_sl.xdmf").write_checkpoint(
+        T_sl, "T", 0, XDMFFile.Encoding.HDF5, append=False
+    )
