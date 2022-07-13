@@ -3,18 +3,18 @@
   <Domain>
     <Grid GridType="Collection" CollectionType="Temporal" Name="T">
       <Grid Name="T_0" GridType="Uniform">
-        <Topology NumberOfElements="190092" TopologyType="Triangle" NodesPerElement="3">
-          <DataItem Dimensions="190092 3" NumberType="UInt" Format="HDF">T_sl.h5:T/T_0/mesh/topology</DataItem>
+        <Topology NumberOfElements="298149" TopologyType="Triangle" NodesPerElement="3">
+          <DataItem Dimensions="298149 3" NumberType="UInt" Format="HDF">T_sl.h5:T/T_0/mesh/topology</DataItem>
         </Topology>
         <Geometry GeometryType="XYZ">
-          <DataItem Dimensions="97017 3" Format="HDF">T_sl.h5:T/T_0/mesh/geometry</DataItem>
+          <DataItem Dimensions="150489 3" Format="HDF">T_sl.h5:T/T_0/mesh/geometry</DataItem>
         </Geometry>
         <Time Value="0.000000" />
         <Attribute ItemType="FiniteElementFunction" ElementFamily="CG" ElementDegree="1" ElementCell="triangle" Name="T" Center="Other" AttributeType="Scalar">
-          <DataItem Dimensions="570276 1" NumberType="UInt" Format="HDF">T_sl.h5:T/T_0/cell_dofs</DataItem>
-          <DataItem Dimensions="97017 1" NumberType="Float" Format="HDF">T_sl.h5:T/T_0/vector</DataItem>
-          <DataItem Dimensions="190093 1" NumberType="UInt" Format="HDF">T_sl.h5:T/T_0/x_cell_dofs</DataItem>
-          <DataItem Dimensions="190092 1" NumberType="UInt" Format="HDF">T_sl.h5:T/T_0/cells</DataItem>
+          <DataItem Dimensions="894447 1" NumberType="UInt" Format="HDF">T_sl.h5:T/T_0/cell_dofs</DataItem>
+          <DataItem Dimensions="150489 1" NumberType="Float" Format="HDF">T_sl.h5:T/T_0/vector</DataItem>
+          <DataItem Dimensions="298150 1" NumberType="UInt" Format="HDF">T_sl.h5:T/T_0/x_cell_dofs</DataItem>
+          <DataItem Dimensions="298149 1" NumberType="UInt" Format="HDF">T_sl.h5:T/T_0/cells</DataItem>
         </Attribute>
       </Grid>
     </Grid>
