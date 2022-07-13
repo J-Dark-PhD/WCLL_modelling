@@ -8,9 +8,9 @@ id_lipb = 6
 id_structure = 7
 id_baffle = 8
 id_W = 9
-id_bz_pipe_1_3 = 10
+id_bz_pipe_1_1 = 10
 id_bz_pipe_1_2 = 11
-id_bz_pipe_1_1 = 12
+id_bz_pipe_1_3 = 12
 id_bz_pipe_2_1 = 13
 id_bz_pipe_2_2 = 14
 id_bz_pipe_2_3 = 15
@@ -227,9 +227,9 @@ my_model.exports = F.Exports(
     [
         F.XDMFExport("solute", folder=folder_results, mode=1),
         F.XDMFExport("retention", folder=folder_results, mode=1),
-        # F.XDMFExport("1", folder=folder, label="trap_W_1", mode=1),
-        # F.XDMFExport("2", folder=folder, label="trap_W_2", mode=1),
-        # F.XDMFExport("3", folder=folder, label="trap_eurofer_1", mode=1),
+        F.XDMFExport("1", folder=folder_results, label="trap_W_1", mode=1),
+        F.XDMFExport("2", folder=folder_results, label="trap_W_2", mode=1),
+        F.XDMFExport("3", folder=folder_results, label="trap_eurofer_1", mode=1),
         F.XDMFExport("T", folder=folder_results, mode=1),
         my_derived_quantities,
     ]
