@@ -50,9 +50,9 @@ ids_fw_coolant_interfaces = [
     id_fw_coolant_interface_1_4,
 ]
 
-id_bz_coolant_interface_1_3 = 28
+id_bz_coolant_interface_1_1 = 28
 id_bz_coolant_interface_1_2 = 29
-id_bz_coolant_interface_1_1 = 30
+id_bz_coolant_interface_1_3 = 30
 id_bz_coolant_interface_2_1 = 31
 id_bz_coolant_interface_2_2 = 32
 id_bz_coolant_interface_2_3 = 33
