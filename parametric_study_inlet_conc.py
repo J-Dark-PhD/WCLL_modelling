@@ -1,10 +1,18 @@
-from parameters_2D import my_model, inlet_h_concentration
+from parameters_2D import (
+    my_model,
+    my_derived_quantities,
+    id_outlet,
+    inlet_h_concentration,
+)
 from solve_H_transport import run_H_transport
 import numpy as np
 import FESTIM as F
 
 
 test_values = np.linspace(0, 1, num=11)
+
+outlet_conc = F.TotalSurface("solute", surface=id_outlet)
+my_derived_quantities.derived_quantities.append(outlet_conc)
 
 folder = "Results/parametric_studies/varying_inlet_conc/"
 for eta in test_values:
@@ -28,7 +36,7 @@ for eta in test_values:
 
         # compute what the average conc at the outlet is
         index = np.where(
-            np.array(derived_quantities.data[0]) == "Total solute surface 21"
+            np.array(derived_quantities.data[0]) == "Total solute surface 22"
         )
         average_concentration_outlet = derived_quantities.data[1][index[0][0]] / 0.061
 
