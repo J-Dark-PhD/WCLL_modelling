@@ -236,8 +236,18 @@ my_model.exports = F.Exports(
 )
 
 # define solving parameters
+
+# option for transient simulations
+# my_model.dt = F.Stepsize(
+#     initial_value=1,
+#     stepsize_change_ratio=1.1,
+#     dt_min=1e-04,
+#     stepsize_stop_max=1 / 10,
+# )
+
 my_model.settings = F.Settings(
     transient=False,
+    final_time=986400 * 15,
     absolute_tolerance=1e12,
     relative_tolerance=1e-08,
     traps_element_type="DG",
