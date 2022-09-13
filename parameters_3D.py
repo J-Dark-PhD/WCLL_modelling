@@ -1,5 +1,5 @@
 import sympy as sp
-import FESTIM as F
+import festim as F
 import properties
 
 # IDs for volumes and surfaces (must be the same as in xdmf files)

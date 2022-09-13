@@ -8,7 +8,7 @@ from parameters_2D import my_model as my_model_2D
 from temp_3D_slicer import slicer
 from h_evaluator import para_h_bz, para_h_fw
 from fenics import *
-import FESTIM as F
+import festim as F
 import numpy as np
 
 temp_range = np.linspace(569, 601, num=15)

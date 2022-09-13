@@ -3,7 +3,7 @@ Needs to be run in serial
 """
 
 from fenics import *
-import FESTIM as F
+import festim as F
 import properties
 import solve_3D_heat_transfer
 

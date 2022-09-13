@@ -14,7 +14,7 @@ from h_evaluator import (
     para_flow_velocity_fw,
 )
 from temp_3D_slicer import slicer
-import FESTIM as F
+import festim as F
 
 no_values = 11
 

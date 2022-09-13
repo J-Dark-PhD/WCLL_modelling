@@ -1,5 +1,5 @@
 from fenics import *
-import FESTIM as F
+import festim as F
 
 
 def slicer(filename):

@@ -2,7 +2,7 @@
 Needs to be run in serial
 """
 from fenics import *
-import FESTIM as F
+import festim as F
 import properties
 
 # IDs for volumes and surfaces (must be the same as in xdmf files)

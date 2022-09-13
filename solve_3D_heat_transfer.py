@@ -1,6 +1,6 @@
 from fenics import *
 from parameters_3D import my_model
-import FESTIM as F
+import festim as F
 
 
 def standard_3D_case():

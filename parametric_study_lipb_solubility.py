@@ -1,6 +1,6 @@
 from parameters_2D import my_model, materials_eurofers
 from solve_H_transport import run_H_transport
-import FESTIM as F
+import festim as F
 
 test_2_1 = 4e23
 test_2_2 = 2e21

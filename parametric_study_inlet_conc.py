@@ -6,7 +6,7 @@ from parameters_2D import (
 )
 from solve_H_transport import run_H_transport
 import numpy as np
-import FESTIM as F
+import festim as F
 
 
 test_values = np.linspace(0, 1, num=11)

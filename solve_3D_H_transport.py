@@ -1,5 +1,5 @@
 from fenics import *
-import FESTIM as F
+import festim as F
 from properties import S_0_lipb, E_S_lipb
 from parameters_3D import my_model, id_lipb
 
