@@ -128,7 +128,6 @@ trap_W_2 = F.Trap(
     density=4e-4 * properties.atom_density_W,
     materials=tungsten,
 )
-
 trap_eurofer_1 = F.Trap(
     k_0=properties.D_0_eurofer
     / (1.1e-10**2)
@@ -142,9 +141,10 @@ trap_eurofer_1 = F.Trap(
 )
 my_model.traps = F.Traps(
     [
-        trap_eurofer_1,
         trap_W_1,
         trap_W_2,
+        # trap_W_damage_1,
+        trap_eurofer_1,
     ]
 )
 
