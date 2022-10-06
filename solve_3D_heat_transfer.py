@@ -22,6 +22,7 @@ def dense_3D_case():
 
     # chemical potential doesnt work in parallel
     my_model.settings = F.Settings(
+        transient=False,
         absolute_tolerance=1e12,
         relative_tolerance=1e-08,
         chemical_pot=False,
@@ -38,7 +39,7 @@ def dense_3D_case():
 
 if __name__ == "__main__":
     # standard case
-    standard_3D_case()
+    # standard_3D_case()
 
     # More dense mesh, resulting in detailed temperature field
-    # dense_3D_case()
+    dense_3D_case()
