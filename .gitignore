@@ -1,2 +1,4 @@
 *.pyc
-*med
+*.med
+*.svg
+*.jpeg
