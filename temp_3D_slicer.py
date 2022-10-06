@@ -48,7 +48,7 @@ if __name__ == "__main__":
     temperature_field_3D = "Results/3D_results/T_3D.xdmf"
     temperature_field_3D_detailed = "Results/3D_results/T_3D_detailed.xdmf"
 
-    T_sl = slicer(temperature_field_3D)
+    T_sl = slicer(temperature_field_3D_detailed)
 
     results_folder = "Results/3D_results/"
     XDMFFile(results_folder + "T_sl.xdmf").write_checkpoint(
