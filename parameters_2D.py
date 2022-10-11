@@ -238,17 +238,17 @@ my_model.exports = F.Exports(
 
 # option for transient simulations
 my_model.dt = F.Stepsize(
-    initial_value=1,
-    stepsize_change_ratio=1.05,
+    initial_value=10,
+    stepsize_change_ratio=1.08,
     dt_min=1e-04,
     stepsize_stop_max=1 / 10,
 )
 
 my_model.settings = F.Settings(
     transient=True,
-    final_time=986400 * 15,
-    absolute_tolerance=1e12,
-    relative_tolerance=1e-08,
+    final_time=86400 * 13,
+    absolute_tolerance=1e10,
+    relative_tolerance=1e-10,
     traps_element_type="DG",
     maximum_iterations=50,
     chemical_pot=True,
