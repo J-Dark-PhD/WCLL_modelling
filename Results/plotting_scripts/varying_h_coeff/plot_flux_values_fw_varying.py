@@ -7,14 +7,16 @@ from scipy.interpolate import RectBivariateSpline
 from shaded_area import shaded_area
 
 sys.path.append("../../../")
-from parametric_study_varying_mass_flow import (
-    mass_flow_range_fw,
-    temp_range,
-)
 from h_evaluator import (
     para_h_fw,
     para_flow_velocity_fw,
 )
+
+no_values = 11
+lower_bound = 0.1
+upper_bound = 1.9
+temp_range = np.linspace(569, 601, num=no_values)
+mass_flow_range_fw = 0.63189 * np.linspace(lower_bound, upper_bound, num=no_values)
 
 bz_ids = range(28, 39)
 fw_ids = range(24, 28)

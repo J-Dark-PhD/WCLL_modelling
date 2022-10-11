@@ -1,20 +1,24 @@
 import matplotlib.pyplot as plt
 from matplotlib import cm, colors
 import matplotlib.pyplot as plt
-from scipy.interpolate import RectBivariateSpline
 from shaded_area import shaded_area
 import numpy as np
 import sys
 
 sys.path.append("../../../")
-from parametric_study_varying_mass_flow import (
-    mass_flow_range_bz,
-    temp_range,
-)
 from h_evaluator import (
     para_h_bz,
     para_flow_velocity_bz,
 )
+
+no_values = 11
+
+temp_range = np.linspace(569, 601, num=no_values)
+
+lower_bound = 0.1
+upper_bound = 1.9
+mass_flow_range_bz = 0.85491 * np.linspace(lower_bound, upper_bound, num=no_values)
+mass_flow_range_fw = 0.63189 * np.linspace(lower_bound, upper_bound, num=no_values)
 
 bz_ids = range(28, 39)
 fw_ids = range(24, 28)
@@ -88,7 +92,7 @@ def shifted_cmap_temp(data):
 
 
 def filename_from_T_flowrate(T, bz_flowrate, fw_flowrate):
-    results_folder = "../../../../data/parametric_studies/varying_h_coeff/results/"
+    results_folder = "../../parametric_studies/varying_h_coeff/results/"
     filename = (
         results_folder
         + "bz_mass_flow={:.3e}_fw_mass_flow={:.3e}_T={:.1f}K/derived_quantities.csv".format(
@@ -199,7 +203,7 @@ def h_coeff_bz(mass_flow_rate):
 # ##### PROCESS DATA ##### #
 # compute for standard case
 standard_results_file = (
-    "../../../../data/parametric_studies/varying_h_coeff/results/"
+    "../../parametric_studies/varying_h_coeff/results/"
     + "standard_case/derived_quantities.csv"
 )
 

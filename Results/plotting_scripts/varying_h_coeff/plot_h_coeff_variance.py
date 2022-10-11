@@ -11,14 +11,15 @@ from h_evaluator import (
     para_flow_velocity_bz,
     para_flow_velocity_fw,
 )
-from parametric_study_varying_mass_flow import (
-    mass_flow_range_bz,
-    mass_flow_range_fw,
-    temp_range,
-    no_values,
-    lower_bound,
-    upper_bound,
-)
+
+no_values = 11
+
+temp_range = np.linspace(569, 601, num=no_values)
+
+lower_bound = 0.1
+upper_bound = 1.9
+mass_flow_range_bz = 0.85491 * np.linspace(lower_bound, upper_bound, num=no_values)
+mass_flow_range_fw = 0.63189 * np.linspace(lower_bound, upper_bound, num=no_values)
 
 
 def shiftedColorMap(cmap, start=0, midpoint=0.5, stop=1, name="shiftedcmap"):
@@ -150,7 +151,7 @@ CS2 = ax.contour(
 )
 plt.clabel(CS2, fmt="%.0f")
 # plt.scatter(X, Y, color="black", marker="x", s=9)
-plt.scatter(0.85491, 585, color="white", marker="*", zorder=2, s=10)
+plt.scatter(0.85491, 585, color="white", marker="*", zorder=2, s=100)
 plt.colorbar(
     CS, label=r"Heat transfer coefficient (W m$^{-2}$ K$^{-1}$)", format="%.0f"
 )
@@ -159,29 +160,29 @@ plt.ylabel(r"Coolant bulk temperature (K)")
 ax.set_title("Breeding Zone Pipes")
 plt.tight_layout()
 
-fig, ax = plt.subplots()
-CS = ax.contourf(
-    X_fw,
-    Y,
-    H_fw,
-    levels=1000,
-    cmap="viridis",
-)
-for c in CS.collections:
-    c.set_edgecolor("face")
-CS2 = ax.contour(
-    X_fw, Y, H_fw, levels=10, colors="black", linestyles="solid", alpha=0.5
-)
-plt.clabel(CS2, fmt="%.0f")
-# plt.scatter(X, Y, color="black", marker="x", s=9)
-plt.scatter(0.63189, 585, color="white", marker="*", zorder=2, s=10)
-plt.colorbar(
-    CS, label=r"Heat transfer coefficient (W m$^{-2}$ K$^{-1}$)", format="%.0f"
-)
-plt.xlabel(r"FW mass flow rate (kg s$^{-1}$)")
-plt.ylabel(r"Coolant bulk temperature (K)")
-ax.set_title("FW cooling channels")
-plt.tight_layout()
+# fig, ax = plt.subplots()
+# CS = ax.contourf(
+#     X_fw,
+#     Y,
+#     H_fw,
+#     levels=1000,
+#     cmap="viridis",
+# )
+# for c in CS.collections:
+#     c.set_edgecolor("face")
+# CS2 = ax.contour(
+#     X_fw, Y, H_fw, levels=10, colors="black", linestyles="solid", alpha=0.5
+# )
+# plt.clabel(CS2, fmt="%.0f")
+# # plt.scatter(X, Y, color="black", marker="x", s=9)
+# plt.scatter(0.63189, 585, color="white", marker="*", zorder=2, s=10)
+# plt.colorbar(
+#     CS, label=r"Heat transfer coefficient (W m$^{-2}$ K$^{-1}$)", format="%.0f"
+# )
+# plt.xlabel(r"FW mass flow rate (kg s$^{-1}$)")
+# plt.ylabel(r"Coolant bulk temperature (K)")
+# ax.set_title("FW cooling channels")
+# plt.tight_layout()
 
 
 fig, ax = plt.subplots()

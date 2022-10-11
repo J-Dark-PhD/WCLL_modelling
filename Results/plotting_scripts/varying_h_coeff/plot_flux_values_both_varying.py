@@ -5,15 +5,14 @@ from scipy.interpolate import interp2d
 import numpy as np
 import sys
 
-sys.path.append("../../../")
-from parametric_study_varying_mass_flow import (
-    mass_flow_range_bz,
-    mass_flow_range_fw,
-    temp_range,
-    no_values,
-    lower_bound,
-    upper_bound,
-)
+no_values = 11
+
+temp_range = np.linspace(569, 601, num=no_values)
+
+lower_bound = 0.1
+upper_bound = 1.9
+mass_flow_range_bz = 0.85491 * np.linspace(lower_bound, upper_bound, num=no_values)
+mass_flow_range_fw = 0.63189 * np.linspace(lower_bound, upper_bound, num=no_values)
 
 bz_ids = range(28, 39)
 fw_ids = range(24, 28)
@@ -244,8 +243,8 @@ Z_bz_surf_temp_normalised *= 100
 
 # ##### PLOTTING ##### #
 
-plt.rc("text", usetex=True)
-plt.rc("font", family="serif", size=12)
+# plt.rc("text", usetex=True)
+# plt.rc("font", family="serif", size=12)
 
 mass_flow_modification_range = np.linspace(lower_bound, upper_bound, num=no_values)
 
