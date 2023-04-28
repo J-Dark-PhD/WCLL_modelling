@@ -5,144 +5,156 @@ from fenics import *
 import festim as F
 import properties
 
-# IDs for volumes and surfaces (must be the same as in xdmf files)
-id_lipb = 6
-id_inlet = 21
-id_outlet = 22
 
-mesh_folder = "meshes/"
+def navier_stokes_solver(
+    temperature_field_filename="Results/3D_results/T_sl.xdmf",
+    sub_velocity_field_filename="Results/velocity_fields/u_sub.xdmf",
+    velocity_field_filename="Results/velocity_fields/u_full.xdmf"
+):
+    # IDs for volumes and surfaces (must be the same as in xdmf files)
+    id_lipb = 6
+    id_inlet = 21
+    id_outlet = 22
 
-# ##### Create SubMesh ##### #
-mesh_full = F.MeshFromXDMF(
-    volume_file=mesh_folder + "mesh_domains_2D.xdmf",
-    boundary_file=mesh_folder + "mesh_boundaries_2D.xdmf",
-)
+    mesh_folder = "meshes/"
 
-mesh_sub = SubMesh(
-    mesh_full.mesh, mesh_full.volume_markers, id_lipb
-)  # doesn't work in parrallel
+    # ##### Create SubMesh ##### #
+    mesh_full = F.MeshFromXDMF(
+        volume_file=mesh_folder + "mesh_domains_floriane.xdmf",
+        boundary_file=mesh_folder + "mesh_boundaries_floriane.xdmf",
+    )
 
-volume_markers_sub = MeshFunction("size_t", mesh_sub, mesh_sub.topology().dim(), 1)
-surface_markers_sub = MeshFunction("size_t", mesh_sub, 1, 0)
+    mesh_sub = SubMesh(
+        mesh_full.mesh, mesh_full.volume_markers, id_lipb
+    )  # doesn't work in parrallel
 
-boundary = CompiledSubDomain("on_boundary")
-boundary_inlet = CompiledSubDomain(
-    "on_boundary && near(x[0], L, tol) && x[1] <= h", tol=1e-14, L=0.567, h=0.066
-)
-boundary_oulet = CompiledSubDomain(
-    "on_boundary && near(x[0], L, tol) && x[1] > h + DOLFIN_EPS",
-    tol=1e-14,
-    L=0.567,
-    h=0.066,
-)
+    volume_markers_sub = MeshFunction("size_t", mesh_sub, mesh_sub.topology().dim(), 1)
+    surface_markers_sub = MeshFunction("size_t", mesh_sub, 1, 0)
 
-id_walls = 5
-boundary.mark(surface_markers_sub, id_walls)
-boundary_inlet.mark(surface_markers_sub, id_inlet)
-boundary_oulet.mark(surface_markers_sub, id_outlet)
+    boundary = CompiledSubDomain("on_boundary")
+    boundary_inlet = CompiledSubDomain(
+        "on_boundary && near(x[0], L, tol) && x[1] <= h", tol=1e-14, L=0.567, h=0.066
+    )
+    boundary_oulet = CompiledSubDomain(
+        "on_boundary && near(x[0], L, tol) && x[1] > h + DOLFIN_EPS",
+        tol=1e-14,
+        L=0.567,
+        h=0.066,
+    )
 
-# XDMFFile("sm_sub.xdmf").write(surface_markers_sub)
+    id_walls = 5
+    boundary.mark(surface_markers_sub, id_walls)
+    boundary_inlet.mark(surface_markers_sub, id_inlet)
+    boundary_oulet.mark(surface_markers_sub, id_outlet)
 
-# ##### Define Function Spaces ##### #
+    # XDMFFile("sm_sub.xdmf").write(surface_markers_sub)
 
-V_ele = VectorElement("CG", mesh_sub.ufl_cell(), 2)
-Q_ele = FiniteElement("CG", mesh_sub.ufl_cell(), 1)
-W = FunctionSpace(mesh_sub, MixedElement([V_ele, Q_ele]))
+    # ##### Define Function Spaces ##### #
 
-# ##### CFD --> Boundary conditions ##### #
+    V_ele = VectorElement("CG", mesh_sub.ufl_cell(), 2)
+    Q_ele = FiniteElement("CG", mesh_sub.ufl_cell(), 1)
+    W = FunctionSpace(mesh_sub, MixedElement([V_ele, Q_ele]))
 
-# User defined boundary conditions
-inlet_temperature = 598.15  # units: K
-inlet_velocity = 1.27e-04  # units: ms-1
-inlet_pressure = 5e05  # units: Pa
-outlet_pressure = 0  # units: Pa
+    # ##### CFD --> Boundary conditions ##### #
 
-# Simulation boundary conditions
-non_slip = Constant((0.0, 0.0, 0.0))
+    # User defined boundary conditions
+    inlet_temperature = 598.15  # units: K
+    # inlet_velocity = 2e-03  # units: ms-1
+    inlet_velocity = 1.27e-04  # units: ms-1
+    inlet_pressure = 5e05  # units: Pa
+    outlet_pressure = 0  # units: Pa
 
-inflow = DirichletBC(
-    W.sub(0), Constant((-inlet_velocity, 0.0, 0.0)), surface_markers_sub, id_inlet
-)
+    # Simulation boundary conditions
+    non_slip = Constant((0.0, 0.0, 0.0))
 
-walls = DirichletBC(W.sub(0), non_slip, surface_markers_sub, id_walls)
+    inflow = DirichletBC(
+        W.sub(0), Constant((-inlet_velocity, 0.0, 0.0)), surface_markers_sub, id_inlet
+    )
 
-pressure_outlet = DirichletBC(W.sub(1), Constant(0), surface_markers_sub, id_outlet)
+    walls = DirichletBC(W.sub(0), non_slip, surface_markers_sub, id_walls)
 
-bcu = [inflow, pressure_outlet, walls]
+    pressure_outlet = DirichletBC(W.sub(1), Constant(0), surface_markers_sub, id_outlet)
 
-g = Constant((0.0, -9.81, 0.0))
-T_0 = inlet_temperature
+    bcu = [inflow, pressure_outlet, walls]
 
-# ##### CFD --> Define Variational Parameters ##### #
+    g = Constant((0.0, -9.81, 0.0))
+    T_0 = inlet_temperature
 
-v, q = TestFunctions(W)
-up = Function(W)
-u, p = split(up)
+    # ##### CFD --> Define Variational Parameters ##### #
 
-# ##### CFD --> Fluid Materials properties ##### #
-V_CG1 = FunctionSpace(mesh_sub, "CG", 1)
+    v, q = TestFunctions(W)
+    up = Function(W)
+    u, p = split(up)
 
-print("Projecting temperature field onto mesh")
-temperature_file = "Results/3D_results/T_sl.xdmf"
-mesh_temperature = mesh_full.mesh
-V_CG1 = FunctionSpace(mesh_temperature, "CG", 1)
-V_CG1_sub = FunctionSpace(mesh_sub, "CG", 1)
-temperature_field = Function(V_CG1)
+    # ##### CFD --> Fluid Materials properties ##### #
+    V_CG1 = FunctionSpace(mesh_sub, "CG", 1)
 
-XDMFFile(temperature_file).read_checkpoint(temperature_field, "T", -1)
-T = project(temperature_field, V_CG1_sub, solver_type="mumps")
+    print("Projecting temperature field onto mesh")
+    mesh_temperature = mesh_full.mesh
+    V_CG1 = FunctionSpace(mesh_temperature, "CG", 1)
+    V_CG1_sub = FunctionSpace(mesh_sub, "CG", 1)
+    temperature_field = Function(V_CG1)
 
-# Fluid properties
-rho_0 = properties.rho_0_lipb
-mu = properties.visc_lipb(T)
-beta = properties.beta_lipb(T)
+    XDMFFile(temperature_field_filename).read_checkpoint(temperature_field, "T", -1)
+    T = project(temperature_field, V_CG1_sub, solver_type="mumps")
 
-# ##### Solver ##### #
-dx = Measure("dx", subdomain_data=volume_markers_sub)
-ds = Measure("ds", subdomain_data=surface_markers_sub)
+    # Fluid properties
+    rho_0 = properties.rho_0_lipb
+    mu = properties.visc_lipb(T)
+    beta = properties.beta_lipb(T)
 
-F = (
-    #           momentum
-    rho_0 * inner(grad(u), grad(v)) * dx
-    - inner(p, div(v)) * dx
-    + mu * inner(dot(grad(u), u), v) * dx
-    # - rho_0 * inner(g, v) * dx
-    + (beta * rho_0) * inner((T - T_0) * g, v) * dx
-    #           continuity
-    + inner(div(u), q) * dx
-)
-print("Solving Navier-Stokes")
-solve(F == 0, up, bcu, solver_parameters={"newton_solver": {"linear_solver": "mumps"}})
+    # ##### Solver ##### #
+    dx = Measure("dx", subdomain_data=volume_markers_sub)
+    ds = Measure("ds", subdomain_data=surface_markers_sub)
 
-u_export = Function(W)
-u_export.assign(up)
-u_out, p_out = u_export.split()
-XDMFFile("Results/velocity_fields/u_sub.xdmf").write_checkpoint(
-    u_out, "u", 0, XDMFFile.Encoding.HDF5, append=False
-)
+    F = (
+        #           momentum
+        rho_0 * inner(grad(u), grad(v)) * dx
+        - inner(p, div(v)) * dx
+        + mu * inner(dot(grad(u), u), v) * dx
+        # - rho_0 * inner(g, v) * dx
+        + (beta * rho_0) * inner((T - T_0) * g, v) * dx
+        #           continuity
+        + inner(div(u), q) * dx
+    )
+    print("Solving Navier-Stokes")
+    solve(F == 0, up, bcu, solver_parameters={"newton_solver": {"linear_solver": "mumps"}})
 
-# ##### extend from subdomain to full mesh ##### #
+    u_export = Function(W)
+    u_export.assign(up)
+    u_out, p_out = u_export.split()
+    XDMFFile(sub_velocity_field_filename).write_checkpoint(
+        u_out, "u", 0, XDMFFile.Encoding.HDF5, append=False
+    )
 
-print("Extending the function")
+    # ##### extend from subdomain to full mesh ##### #
 
-ele_full = VectorElement("CG", mesh_full.mesh.ufl_cell(), 2)
-V = FunctionSpace(mesh_full.mesh, ele_full)
-u_full = Function(V)
-v_full = TestFunction(V)
+    print("Extending the function")
 
-mesh_full.define_markers()
-mesh_full.define_measures()
+    ele_full = VectorElement("CG", mesh_full.mesh.ufl_cell(), 2)
+    V = FunctionSpace(mesh_full.mesh, ele_full)
+    u_full = Function(V)
+    v_full = TestFunction(V)
 
-F = inner(u_full, v_full) * mesh_full.dx
-F += -inner(u_out, v_full) * mesh_full.dx(id_lipb)
-print("Projecting onto full mesh")
-solve(
-    F == 0,
-    u_full,
-    bcs=[],
-    solver_parameters={"newton_solver": {"linear_solver": "mumps"}},
-)
+    mesh_full.define_markers()
+    mesh_full.define_measures()
 
-XDMFFile("Results/velocity_fields/u.xdmf").write_checkpoint(
-    u_full, "u", 0, XDMFFile.Encoding.HDF5, append=False
+    F = inner(u_full, v_full) * mesh_full.dx
+    F += -inner(u_out, v_full) * mesh_full.dx(id_lipb)
+    print("Projecting onto full mesh")
+    solve(
+        F == 0,
+        u_full,
+        bcs=[],
+        solver_parameters={"newton_solver": {"linear_solver": "mumps"}},
+    )
+
+    XDMFFile(velocity_field_filename).write_checkpoint(
+        u_full, "u", 0, XDMFFile.Encoding.HDF5, append=False
+    )
+
+navier_stokes_solver(
+    temperature_field_filename="Results/3D_results/T_sl_floriane.xdmf",
+    sub_velocity_field_filename="Results/velocity_fields/u_sub_floriane.xdmf",
+    velocity_field_filename="Results/velocity_fields/u_floriane.xdmf"
 )
