@@ -29,7 +29,8 @@ def run_H_transport(model, S_0_lipb=S_0_lipb, E_S_lipb=E_S_lipb):
     V_ele = VectorElement("CG", mesh.ufl_cell(), 2)
     V_u = FunctionSpace(mesh, V_ele)
 
-    velocity_field = "Results/velocity_fields/u.xdmf"
+    # velocity_field = "Results/velocity_fields/u.xdmf"
+    velocity_field = "Results/velocity_fields/u_floriane.xdmf"
     u = Function(V_u, name="velocity")
     XDMFFile(velocity_field).read_checkpoint(u, "u", -1)
 
