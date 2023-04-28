@@ -30,8 +30,8 @@ def slicer(filename):
             return ()
 
     mesh_2D = F.MeshFromXDMF(
-        volume_file=mesh_folder + "/mesh_domains_2D.xdmf",
-        boundary_file=mesh_folder + "/mesh_boundaries_2D.xdmf",
+        volume_file=mesh_folder + "/mesh_domains_floriane.xdmf",
+        boundary_file=mesh_folder + "/mesh_boundaries_floriane.xdmf",
     )
 
     V_2D = FunctionSpace(mesh_2D.mesh, "CG", 1)
@@ -48,9 +48,9 @@ if __name__ == "__main__":
     temperature_field_3D = "Results/3D_results/T_3D.xdmf"
     temperature_field_3D_detailed = "Results/3D_results/T_3D_detailed.xdmf"
 
-    T_sl = slicer(temperature_field_3D_detailed)
+    T_sl = slicer(temperature_field_3D)
 
     results_folder = "Results/3D_results/"
-    XDMFFile(results_folder + "T_sl.xdmf").write_checkpoint(
+    XDMFFile(results_folder + "T_sl_floriane.xdmf").write_checkpoint(
         T_sl, "T", 0, XDMFFile.Encoding.HDF5, append=False
     )
