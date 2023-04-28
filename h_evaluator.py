@@ -1,4 +1,5 @@
 import numpy as np
+from pyXSteam.XSteam import XSteam
 
 
 def rho_func(T):
@@ -171,6 +172,7 @@ def heat_transfer_coefficient(d_w, u, L, T, P=1):
     k = thermal_cond_func(T)
     mu = mu_func(T)
     cp = cp_func(T)
+
     # print("Density = {}".format(rho))
     # print("Thermal conductivity = {}".format(k))
     # print("Viscosity = {}".format(mu))
@@ -184,6 +186,85 @@ def heat_transfer_coefficient(d_w, u, L, T, P=1):
     # print("Reynolds number = {}".format(Reynolds))
     # print("Prandtl number = {}".format(Prandtl))
     # print("Nusselt number = {}".format(Nu))
+
+    h = (Nu * k) / d_w
+    return h
+
+
+def heat_transfer_coefficient_alt(d_w, u, L, T, P=1):
+    """_summary_
+
+    Args:
+        d_w (float): wetted perimeter (m)
+        u (float): fluid velocity (m/s)
+        L (float): characteristi length (m)
+        P (float, optional): pressure of fluid (bar), only needed if steam table Pr evaluation is used
+        T (float): Temperature of fluid (K)
+
+    Returns:
+        float: heat transfer coefficient (W/m2 K)
+    """
+    steamTable = XSteam(XSteam.UNIT_SYSTEM_BARE)
+    P = 15.5
+    rho = steamTable.rho_pt(P, T)
+    k = steamTable.tc_pt(P, T)
+    cp = steamTable.Cp_pt(P, T) * 1000
+    mu = steamTable.my_pt(P, T)
+    mu_w = steamTable.my_pt(P, T + 10)
+
+    # print("Density alt = {}".format(rho))
+    # print("Thermal conductivity alt = {}".format(k))
+    # print("Viscosity alt = {}".format(mu))
+    # print("Specific heat capacity alt = {}".format(cp))
+
+    Reynolds = Re_number(rho=rho, u=u, L=L, mu=mu)
+    xi = friction_factor(Re=Reynolds)
+    Prandtl = Pr_number_func(mu=mu, k=k, cp=cp)
+    # Nu = Nu_number(Re=Reynolds, Pr=Prandtl, xi=xi)
+    Nu = 0.027 * (Reynolds ** (4 / 5)) * (Prandtl ** (1 / 3)) * ((mu / mu_w) ** 0.14)
+
+    # print("Reynolds number alt = {}".format(Reynolds))
+    # print("Prandtl number alt = {}".format(Prandtl))
+    # print("Nusselt number alt = {}".format(Nu))
+
+    h = (Nu * k) / d_w
+    return h
+
+
+def heat_transfer_coefficient_alt_2(d_w, u, L, T, P=1):
+    """_summary_
+
+    Args:
+        d_w (float): wetted perimeter (m)
+        u (float): fluid velocity (m/s)
+        L (float): characteristi length (m)
+        P (float, optional): pressure of fluid (bar), only needed if steam table Pr evaluation is used
+        T (float): Temperature of fluid (K)
+
+    Returns:
+        float: heat transfer coefficient (W/m2 K)
+    """
+    steamTable = XSteam(XSteam.UNIT_SYSTEM_BARE)
+    P = 15.5
+    rho = steamTable.rho_pt(P, T)
+    k = steamTable.tc_pt(P, T)
+    cp = steamTable.Cp_pt(P, T) * 1000
+    mu = steamTable.my_pt(P, T)
+    mu_w = steamTable.my_pt(P, T + 10)
+
+    # print("Density alt = {}".format(rho))
+    # print("Thermal conductivity alt = {}".format(k))
+    # print("Viscosity alt = {}".format(mu))
+    # print("Specific heat capacity alt = {}".format(cp))
+
+    Reynolds = Re_number(rho=rho, u=u, L=L, mu=mu)
+    xi = friction_factor(Re=Reynolds)
+    Prandtl = Pr_number_func(mu=mu, k=k, cp=cp)
+    Nu = Nu_number(Re=Reynolds, Pr=Prandtl, xi=xi)
+
+    # print("Reynolds number alt = {}".format(Reynolds))
+    # print("Prandtl number alt = {}".format(Prandtl))
+    # print("Nusselt number alt = {}".format(Nu))
 
     h = (Nu * k) / d_w
     return h
