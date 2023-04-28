@@ -121,7 +121,7 @@ trap_W_1 = F.Trap(
     materials=tungsten,
 )
 trap_W_2 = F.Trap(
-    k_0=4.1e-7 / (1.1e-10**2 * 6 * properties.atom_density_W),
+    k_0=properties.D_0_W / (1.1e-10**2 * 6 * properties.atom_density_W),
     E_k=properties.E_D_W,
     p_0=1e13,
     E_p=1.00,
@@ -139,6 +139,7 @@ trap_eurofer_1 = F.Trap(
     density=properties.trap_density_eurofer,
     materials=materials_eurofers,
 )
+
 my_model.traps = F.Traps(
     [
         trap_W_1,
@@ -162,7 +163,8 @@ my_model.sources = [
 ]
 
 # define temperature
-temperature_field = "Results/3D_results/T_sl.xdmf"
+temperature_field = "Results/3D_results/T_sl_floriane.xdmf"
+# temperature_field = "Results/3D_results/T_sl.xdmf"
 my_model.T = F.TemperatureFromXDMF(filename=temperature_field, label="T")
 
 # define boundary conditions
@@ -238,15 +240,15 @@ my_model.exports = F.Exports(
 
 # option for transient simulations
 my_model.dt = F.Stepsize(
-    initial_value=10,
-    stepsize_change_ratio=1.08,
+    initial_value=0.1,
+    stepsize_change_ratio=1.05,
     dt_min=1e-04,
     stepsize_stop_max=1 / 10,
 )
 
 my_model.settings = F.Settings(
     transient=True,
-    final_time=86400 * 13,
+    final_time=3600*24,
     absolute_tolerance=1e10,
     relative_tolerance=1e-10,
     traps_element_type="DG",
